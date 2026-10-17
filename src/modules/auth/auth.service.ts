@@ -6,15 +6,22 @@ import { LoginInput } from './auth.schema';
 
 export interface AuthenticatedUserPayload {
   id: string;
+  userId: string;
   tenant_id: string;
+  tenantId: string;
   email: string;
   full_name: string;
+  fullName: string;
   role: UserRole;
   is_active: boolean;
+  isActive: boolean;
   tenant: {
     id: string;
     company_name: string;
+    companyName: string;
     subdomain: string;
+    slug: string;
+    name: string;
   };
 }
 
@@ -32,6 +39,29 @@ interface UserDbRow {
   is_active: boolean;
   company_name: string;
   subdomain: string;
+}
+
+function buildUserPayload(row: UserDbRow): AuthenticatedUserPayload {
+  return {
+    id: row.id,
+    userId: row.id,
+    tenant_id: row.tenant_id,
+    tenantId: row.tenant_id,
+    email: row.email,
+    full_name: row.full_name,
+    fullName: row.full_name,
+    role: row.role,
+    is_active: row.is_active,
+    isActive: row.is_active,
+    tenant: {
+      id: row.tenant_id,
+      company_name: row.company_name,
+      companyName: row.company_name,
+      subdomain: row.subdomain,
+      slug: row.subdomain,
+      name: row.company_name,
+    },
+  };
 }
 
 export class AuthService {
@@ -123,19 +153,7 @@ export class AuthService {
 
     return {
       token,
-      user: {
-        id: userRow.id,
-        tenant_id: userRow.tenant_id,
-        email: userRow.email,
-        full_name: userRow.full_name,
-        role: userRow.role,
-        is_active: userRow.is_active,
-        tenant: {
-          id: userRow.tenant_id,
-          company_name: userRow.company_name,
-          subdomain: userRow.subdomain,
-        },
-      },
+      user: buildUserPayload(userRow),
     };
   }
 
@@ -157,20 +175,7 @@ export class AuthService {
       throw new Error('User not found in tenant database');
     }
 
-    const row = res.rows[0];
-    return {
-      id: row.id,
-      tenant_id: row.tenant_id,
-      email: row.email,
-      full_name: row.full_name,
-      role: row.role,
-      is_active: row.is_active,
-      tenant: {
-        id: row.tenant_id,
-        company_name: row.company_name,
-        subdomain: row.subdomain,
-      },
-    };
+    return buildUserPayload(res.rows[0]);
   }
 }
 

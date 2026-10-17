@@ -24,11 +24,19 @@ export async function handleLogin(request: FastifyRequest, reply: FastifyReply):
       endpoint: request.url,
     });
 
+    const user = result.user;
     return reply.status(200).send({
       success: true,
-      message: `Successfully authenticated as ${result.user.full_name} (${result.user.role})`,
+      message: `Successfully authenticated as ${user.full_name} (${user.role})`,
       token: result.token,
-      data: result.user,
+      accessToken: result.token,
+      user,
+      data: {
+        ...user,
+        user,
+        token: result.token,
+        accessToken: result.token,
+      },
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Authentication failed';
@@ -67,7 +75,11 @@ export async function handleGetMe(request: FastifyRequest, reply: FastifyReply):
 
     return reply.status(200).send({
       success: true,
-      data: profile,
+      user: profile,
+      data: {
+        ...profile,
+        user: profile,
+      },
     });
   } catch (err: unknown) {
     return reply.status(404).send({
