@@ -1,0 +1,44 @@
+{
+  "name": "solaris-core-api",
+  "version": "1.0.0",
+  "description": "SOLARIS - Solanke Operations, Leave, Attendance, Route & Intelligence System Backend API",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "tsx src/scripts/test-api.ts",
+    "migrate": "tsx src/scripts/migrate.ts",
+    "seed": "tsx src/scripts/seed.ts",
+    "generate-token": "tsx src/scripts/generate-token.ts"
+  },
+  "keywords": [
+    "solaris",
+    "field-workforce",
+    "postgis",
+    "geospatial",
+    "fastify",
+    "telemetry",
+    "stopover-detection"
+  ],
+  "author": "Saurabh Solanke",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^11.3.1",
+    "@fastify/jwt": "^10.2.4",
+    "@fastify/swagger": "^9.9.2",
+    "@fastify/swagger-ui": "^5.2.2",
+    "@supabase/supabase-js": "^2.117.3",
+    "dotenv": "^17.4.0",
+    "fastify": "^5.2.1",
+    "kysely": "^0.29.6",
+    "pg": "^8.13.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
