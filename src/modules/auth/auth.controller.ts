@@ -32,6 +32,21 @@ export async function handleLogin(request: FastifyRequest, reply: FastifyReply):
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Authentication failed';
+    
+    // Check for database infrastructure errors
+    if (
+      msg.includes('password authentication failed') ||
+      msg.includes('ECONNREFUSED') ||
+      msg.includes('ETIMEDOUT') ||
+      msg.includes('ENOTFOUND')
+    ) {
+      return reply.status(500).send({
+        statusCode: 500,
+        error: 'DatabaseConnectionError',
+        message: `Backend database connection error: ${msg}. Please verify DATABASE_URL in your Render environment variables.`,
+      });
+    }
+
     const statusCode = msg.includes('deactivated') ? 403 : msg.includes('not found') ? 404 : 401;
     return reply.status(statusCode).send({
       statusCode,
