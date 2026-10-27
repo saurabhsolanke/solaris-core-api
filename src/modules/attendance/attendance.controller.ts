@@ -82,3 +82,16 @@ export async function handlePunchOut(request: FastifyRequest, reply: FastifyRepl
     data: buildPayload(record),
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/v1/attendance/history
+// ─────────────────────────────────────────────────────────────────────────────
+export async function handleGetHistory(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  const { id: userId, tenantId, role } = request.user;
+  const records = await attendanceService.getHistory(tenantId, userId, role);
+
+  return reply.status(200).send({
+    success: true,
+    data: records,
+  });
+}

@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import { handlePunchIn, handlePunchOut } from './attendance.controller';
+import { handlePunchIn, handlePunchOut, handleGetHistory } from './attendance.controller';
 
 // ── Shared actor schema (user + tenant identity) ──────────────────────────────
 const actorSchema = {
@@ -110,6 +110,48 @@ const attendanceRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
       },
     },
     handler: handlePunchOut,
+  });
+
+  // ── GET /api/v1/attendance/history ──────────────────────────────────────
+  fastify.get('/history', {
+    schema: {
+      description: 'Fetch shift history. ADMIN returns all tenant operatives; EMPLOYEE returns their own records.',
+      tags: ['Attendance'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id:                { type: 'string', format: 'uuid' },
+                  tenant_id:         { type: 'string', format: 'uuid' },
+                  user_id:           { type: 'string', format: 'uuid' },
+                  punch_in_at:       { type: 'string' },
+                  punch_in_address:  { type: 'string', nullable: true },
+                  punch_in_lat:      { type: 'number' },
+                  punch_in_lng:      { type: 'number' },
+                  punch_out_at:      { type: 'string', nullable: true },
+                  punch_out_address: { type: 'string', nullable: true },
+                  punch_out_lat:     { type: 'number', nullable: true },
+                  punch_out_lng:     { type: 'number', nullable: true },
+                  total_distance_km: { type: 'number' },
+                  created_at:        { type: 'string' },
+                  full_name:         { type: 'string' },
+                  email:             { type: 'string' },
+                  role:              { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    handler: handleGetHistory,
   });
 };
 

@@ -255,6 +255,48 @@ export class AttendanceService {
 
     return updatedRows[0]!;
   }
+
+  /**
+   * Fetch attendance history / active shifts.
+   * If role is ADMIN, returns all attendance records for the tenant.
+   * If role is EMPLOYEE, returns only the user's attendance records.
+   */
+  async getHistory(tenantId: string, userId: string, role: string): Promise<any[]> {
+    let queryStr = `
+      SELECT 
+        a.id, 
+        a.tenant_id, 
+        a.user_id, 
+        a.punch_in_at, 
+        a.punch_in_address, 
+        ST_Y(a.punch_in_location) AS punch_in_lat, 
+        ST_X(a.punch_in_location) AS punch_in_lng, 
+        a.punch_out_at, 
+        a.punch_out_address, 
+        ST_Y(a.punch_out_location) AS punch_out_lat, 
+        ST_X(a.punch_out_location) AS punch_out_lng, 
+        a.total_distance_km::float AS total_distance_km, 
+        a.created_at,
+        u.full_name,
+        u.email,
+        u.role
+      FROM attendance a
+      JOIN users u ON u.id = a.user_id
+      WHERE a.tenant_id = $1
+    `;
+    const params: any[] = [tenantId];
+
+    if (role !== 'ADMIN') {
+      params.push(userId);
+      queryStr += ` AND a.user_id = $2`;
+    }
+
+    queryStr += ` ORDER BY a.punch_in_at DESC LIMIT 100`;
+
+    const { rows } = await query<any>(queryStr, params);
+    return rows;
+  }
+
 }
 
 export const attendanceService = new AttendanceService();
